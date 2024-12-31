@@ -11,16 +11,10 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const expressApp = express();
 
-let origins = [];
-if (process.env.ORIGIN_ONE) origins.push(process.env.ORIGIN_ONE);
-if (process.env.ORIGIN_TWO) origins.push(process.env.ORIGIN_TWO);
-if (process.env.ORIGIN_THREE) origins.push(process.env.ORIGIN_THREE);
-if (origins.length === 0) origins.push("*");
-
 // common middlewares
 expressApp.use(
     cors({
-        origin: origins,
+        origin: "*",
         methods: ["GET", "PUT", "POST", "DELETE"],
     })
 );
