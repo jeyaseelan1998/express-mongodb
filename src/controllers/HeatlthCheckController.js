@@ -1,10 +1,15 @@
+const { ApiError } = require("../helper/ApiError");
+const { ApiResponse } = require("../helper/ApiResponse");
+
 const HeatlthCheckController = async (request, response) => {
     try {
-        return response
+        response
             .status(200)
-            .json({ message: "HeatlthCheckController is working" });
+            .json(
+                new ApiResponse(200, {}, "HeatlthCheckController is working")
+            );
     } catch (error) {
-        console.log("An unexpected error occured!", error);
+        response.status(500).json(new ApiError(500, error.message));
     }
 };
 
