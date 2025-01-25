@@ -1,0 +1,63 @@
+const { ApiError } = require("../helper/ApiError");
+const { ApiResponse } = require("../helper/ApiResponse");
+
+const User = require("../modals/UserModal");
+
+const RegisterController = async (request, response) => {
+    const { username, password } = request.body;
+    console.log(request.body);
+
+    try {
+        const existingUser = await User.find({
+            $or: [{ username }],
+        });
+        if (existingUser) {
+            return response
+                .status(400)
+                .send(new ApiError(400, "username already exists"));
+        }
+        const user = await User.create({
+            username,
+            password,
+        });
+        const addedUser = await User.findById(user._id).select(
+            "-password -refreshToken"
+        );
+        if (!addedUser) {
+            response
+                .status(500)
+                .send(
+                    new ApiError(
+                        500,
+                        "Something went wrong while creating user"
+                    )
+                );
+        }
+        response
+            .status(200)
+            .send(new ApiResponse(201, {}, "Registration success"));
+    } catch (error) {
+        response.status(500).send(new ApiError(500, error.message));
+    }
+};
+
+const LoginController = async (request, response) => {
+    console.log(request.body);
+
+    const user = await User.find({
+        $or: [{ username }],
+    });
+
+    const jwt_token = user.getAccessToken();
+
+    try {
+        response.status(200).send(new ApiResponse(200, { jwt_token }));
+    } catch (error) {
+        response.status(500).send(new ApiError(500, error.message));
+    }
+};
+
+module.exports = {
+    LoginController,
+    RegisterController,
+};
