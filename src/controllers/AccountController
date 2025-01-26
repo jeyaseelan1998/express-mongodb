@@ -5,24 +5,27 @@ const User = require("../modals/UserModal");
 
 const RegisterController = async (request, response) => {
     const { username, password } = request.body;
-    console.log(request.body);
 
     try {
-        const existingUser = await User.find({
+        const existingUser = await User.findOne({
             $or: [{ username }],
         });
+
         if (existingUser) {
             return response
                 .status(400)
                 .send(new ApiError(400, "username already exists"));
         }
+
         const user = await User.create({
             username,
             password,
         });
+
         const addedUser = await User.findById(user._id).select(
             "-password -refreshToken"
         );
+
         if (!addedUser) {
             response
                 .status(500)
@@ -35,7 +38,7 @@ const RegisterController = async (request, response) => {
         }
         response
             .status(200)
-            .send(new ApiResponse(201, {}, "Registration success"));
+            .send(new ApiResponse(201, request.body, "Registration success"));
     } catch (error) {
         response.status(500).send(new ApiError(500, error.message));
     }
@@ -43,12 +46,13 @@ const RegisterController = async (request, response) => {
 
 const LoginController = async (request, response) => {
     console.log(request.body);
+    const { username, password } = request.body;
 
     const user = await User.find({
         $or: [{ username }],
     });
 
-    const jwt_token = user.getAccessToken();
+    console.log(user);
 
     try {
         response.status(200).send(new ApiResponse(200, { jwt_token }));

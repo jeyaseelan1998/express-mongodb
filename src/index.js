@@ -1,4 +1,5 @@
 const cors = require("cors");
+const multer = require("multer");
 const dotenv = require("dotenv");
 const express = require("express");
 const cookieParser = require("cookie-parser");
@@ -12,19 +13,20 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const expressApp = express();
+var upload = multer();
 
 // common middlewares
-expressApp.use(express.json());
 expressApp.use(
     cors({
         origin: "*",
         methods: ["GET", "PUT", "POST", "DELETE"],
     })
 );
-
-expressApp.use(cookieParser);
-// expressApp.use(express.static("public"));
-// expressApp.use(express.urlencoded({ extended: true, limit: "16kb" }));
+expressApp.use(cookieParser());
+expressApp.use(bodyParser.json());
+expressApp.use(upload.array());
+expressApp.use(express.static("public"));
+expressApp.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
 // Routers
 expressApp.use("/api/v1/users", AccountRouter);
